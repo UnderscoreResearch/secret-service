@@ -1,0 +1,12 @@
+You have made a payment to Your Shared Secret.
+
+{{{date}}}: ${{{amount}}}
+Transaction Id: {{{transaction}}
+
+Your Shared Secret is guaranteed until {{{payDate}}}.
+
+If you want to know more about what this is please go to the about section at
+Your Shared Secret at {{{baseurl}}}#about. For more information on how it works
+visit the Usage section on the same site at {{{baseurl}}}#how. 
+
+Your Shared Secret is owned and oeprated by Underscore Research LLC.

@@ -1,0 +1,1359 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": {
+			"Fn::Sub": "Your Shared Secret API (${Stage})"
+		},
+		"version": "1.0",
+		"description": "API for managing secrets and caretakers for the Your Shared Secret service."
+	},
+	"host": "api.yoursharedsecret.com",
+	"basePath": "/v1",
+	"schemes": [
+		"https"
+	],
+	"paths": {
+		"/": {
+			"get": {
+				"operationId": "GetServiceDefinition",
+				"summary": "Get the swagger documentation of this API.",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "200 response"
+					}
+				},
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+		
+		"/servicetime": {
+			"get": {
+				"operationId": "GetServiceTime",
+				"summary": "Get the current clock of the service to allow for synchronizing of API calls.",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/ServiceTimeResponse"
+						}
+					}
+				},
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/caretakers/{secret-id}": {
+			"get": {
+				"operationId": "GetCaretakers",
+				"summary": "Get a list of all the caretakers of a secret.",
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretakers public key. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/CaretakersResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/caretakers/{secret-id}/{caretaker-id}": {
+			"get": {
+				"operationId": "GetCaretaker",
+				"summary": "Get information about a caretaker.",
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretakers public key or the similarly for the current caretakers public key. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/CaretakerResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"head": {
+				"operationId": "CheckCaretaker",
+				"summary": "Check if a caretaker exists.",
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"description": "Public key of the secret. Encoded using Base64 URL safe encoding.",
+						"name": "secretPublicKey",
+						"in": "query",
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response. Means that the secret exists and has not been accepted yet.",
+						"schema": {
+							"$ref": "#/definitions/CaretakerResponse"
+						}
+					},
+					"202": {
+						"description": "202 response. Means that the secret exists but have already been accepted.",
+						"schema": {
+							"$ref": "#/definitions/CaretakerResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"post": {
+				"operationId": "CreateCaretaker",
+				"summary": "Create a caretaker.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "CreateCaretakerRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/CreateCaretakerRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"put": {
+				"operationId": "UpdateCaretaker",
+				"summary": "Update a caretaker.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier. Must not be longer than 30 characters.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to the private key corresponding to the current current caretakers public key. If the secret has not yet been published the secrets key is also acceptable. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "UpdateCaretakerRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/UpdateCaretakerRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"delete": {
+				"operationId": "DeleteCaretaker",
+				"summary": "Delete a caretaker.",
+				"description": "This can only be done if the secret has not been published.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"name": "secret-id",
+						"description": "Unique secret identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/caretakers/{secret-id}/{caretaker-id}/send": {
+			"post": {
+				"operationId": "SendMessage",
+				"summary": "Send a message to a caretaker.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "SendRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/SendRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/secrets": {
+			"post": {
+				"operationId": "CreateSecurity",
+				"summary": "Create a secret.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "CreateSecretRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/CreateSecretRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/CreateSecretResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/secrets/{secret-id}": {
+			"get": {
+				"operationId": "GetSecret",
+				"summary": "Get a secret.",
+				"description": "This can be done either by the owner of the secret or the unlocking caretaker assuming that the 1 week quarantine period has passed and the proper dataKeyDigest is provided.",
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"description": "SHA 256 digest of the key used to encrypt the secret. Only needed when retrieving during an unlock. Encoded using Base64 URL safe encoding.",
+						"name": "dataKeyDigest",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"description": "Caretaker requesting to fetch the secret. Must also prove knowledge of the dataKey.",
+						"name": "caretakerId",
+						"in": "query",
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretakers public key or the explicitly specified caretakerId in the query string parameter. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/SecretResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"423": {
+						"description": "423 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"put": {
+				"operationId": "UpdateSecret",
+				"summary": "Update a secret.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "UpdateSecretRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/UpdateSecretRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			},
+			"delete": {
+				"operationId": "DeleteSecret",
+				"summary": "Delete a secret.",
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/secrets/{secret-id}/{caretaker-id}/unlock": {
+			"post": {
+				"operationId": "UnlockSecret",
+				"summary": "Request to unlock a secret.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"name": "secret-id",
+						"description": "Unique secret identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to the private key of the caretaker requesting the unlock. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "UnlockSecretRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/UnlockSecretRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/secrets/{secret-id}/{caretaker-id}/share": {
+			"post": {
+				"operationId": "ShareSecret",
+				"summary": "Share access to unlocked secret with additional caretakers.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"name": "secret-id",
+						"description": "Unique secret identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to the private key of the unlocking caretaker. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "ShareSecretRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/ShareSecretRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/payments/{public-key}": {
+			"get": {
+				"operationId": "GetPaymentInformation",
+				"summary": "Get payment information.",
+				"produces": [
+					"application/json"
+				],
+               "parameters": [
+                       {
+                               "name": "public-key",
+                               "description": "A public key used to sign the request. Encoded using Base64 URL safe encoding.",
+                               "in": "path",
+                               "required": true,
+                               "type": "string"
+                       },
+                       {
+                               "name": "x-yoursharedsecret-ownership",
+                               "description": "Header proving access to the private key corresponding to the public key. See separate section for details.",
+                               "in": "header",
+                               "required": true,
+                               "type": "string"
+                       }
+               ],
+               "responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/PaymentsResponse"
+						}
+					},
+					"403": {
+						"description": "403 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		}
+	},
+	"definitions": {
+		"MessageResponse": {
+			"type": "object",
+			"title": "Free form message response.",
+			"properties": {
+				"message": {
+					"description": "Free form message.",
+					"type": "string"
+				}
+			}
+		},
+		
+		"ServiceTimeResponse": {
+			"type": "object",
+			"title": "Service time response body.",
+			"properties": {
+				"serviceTime": {
+					"description": "Number of milliseconds since January 1st 1970 UTC.",
+					"type": "number"
+				}
+			}
+		},
+		
+		"CaretakersResponse": {
+			"type": "object",
+			"title": "Get caretakers response body.",
+			"properties": {
+				"caretakers": {
+					"type": "object",
+					"description": "A map with the key being the recipient ID of every recipient of the secret. The value detailed information of the recipient.",
+					"additionalProperties": {
+						"$ref": "#/definitions/CaretakerResponse"
+					}
+				}
+			},
+			"required": [
+				"caretakers"
+			]
+		},
+		
+		"CaretakerResponse": {
+			"type": "object",
+			"title": "Get caretaker response body.",
+			"properties": {
+				"publicKey": {
+					"description": "Public key for caretaker. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"description": "List of available addresses for the caretaker.",
+					"items": {
+						"$ref": "#/definitions/AddressResponseItem"
+					}
+				},
+				"data": {
+					"description": "Encrypted data for the caretaker containing the part of the shared key and potential unlocking information. Encrypted using a key exchange between an ephemeral private key and the public key of the caretaker. The signing key is the private key of the secret. Encoded using Base64 URL safe encoding. Maximum size of this field is 2000 bytes when encoded.",
+					"type": "string"
+				},
+				"caretakerData": {
+					"description": "Encrypted data for the caretaker. Encrypted and signed using the private key of the caretaker. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"dataKey": {
+					"description": "The symmetric data key of the secret. Encrypted with the public key of the caretaker and signed using the private key of the unlocking caretaker. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"unlockData": {
+					"description": "Encrypted data for the caretaker containing the part of the shared key and potential unlocking information. Encrypted using a key exchange between an ephemeral private key and the unlocking caretakers public key. Signing is done using the private key of the caretaker. Encoded using Base64 URL safe encoding. Maximum size of this field is 2000 bytes when encoded.",
+					"type": "string"
+				},
+				"unlockPublicKey": {
+					"description": "Public key that is currently in the process of requesting an unlock of the secret. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"secretPublicKey": {
+					"description": "Public key for the secret whom this caretaker is attached to. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"secretData": {
+					"description": "Custom data for the secret owner about the caretaker. The private key of the secret is both the signing key and the encrypting key. Encoded using Base64 URL safe encoding. Maximum size 1000 characters.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"addresses"
+			]
+		},
+		
+		"AddressResponseItem": {
+			"type": "object",
+			"title": "Address item in responses.",
+			"properties": {
+				"address": {
+					"description": "Address field of the address. If the public key of the caretaker exists it is encrypted using the Diffie-Hellman key exchange between the two keys of the secret and the caretaker and the signing key will be the private key of the caretaker. If the public key of the caretaker does not exist the the private key of the secret is used both for encryption and signing. Encoded using Base64 URL safe encoding. Alternatively if address privacy is not required this field can be in clear text in which case the nonce field would be empty (Should only be used for unlock notifications).",
+					"type": "string"
+				},
+				"addressType": {
+					"description": "Type of the address.\n* GCM - Google or Firebase Cloud Messaging.\n* APNS - Apple Push Notification Service.\n* EMAIL - Email address.\n* MAIL - Regular old snail mail address.",
+					"type": "string",
+					"enum": [
+						"GCM",
+						"APNS",
+						"EMAIL",
+						"MAIL"
+					]
+				}
+			},
+			"required": [
+				"addressType",
+				"address"
+			]
+		},
+		
+		"UpdateCaretakerRequest": {
+			"type": "object",
+			"title": "Update caretaker request body.",
+			"properties": {
+				"publicKey": {
+					"description": "Public key for caretaker. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"addressKeyDigest": {
+					"description": "Double SHA512 digest of the key used for encrypting addresses. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"addresses": {
+					"type": "array",
+					"description": "List of available addresses for the caretaker.",
+					"items": {
+						"$ref": "#/definitions/AddressRequestItem"
+					}
+				},
+				"data": {
+					"description": "Encrypted data for the caretaker containing the part of the shared key and potential unlocking information. Encrypted using a key exchange between an ephemeral private key and the public key of the caretaker. The signing key is the private key of the secret. Encoded using Base64 URL safe encoding. Maximum size of this field is 2000 bytes when encoded.",
+					"type": "string"
+				},
+				"caretakerData": {
+					"description": "Encrypted data for the caretaker. Encrypted and signed using the private key of the caretaker. Encoded using Base64 URL safe encoding. Maximum size of this field is 1kb when encoded.",
+					"type": "string"
+				},
+				"unlockData": {
+					"description": "Encrypted data for the caretaker containing the part of the shared key and potential unlocking information. Encrypted using a key exchange between an ephemeral private key and the unlocking caretakers public key. Signing is done using the private key of the caretaker. Encoded using Base64 URL safe encoding. Maximum size of this field is 2000 bytes when encoded.",
+					"type": "string"
+				},
+				"unlockPublicKey": {
+					"description": "Public key that is used to encrypt the unlockData. Must match the unlockPublicKey of the secret. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"secretData": {
+					"description": "Custom data for the secret owner about the caretaker. The private key of the secret is both the signing key and the encrypting key. Encoded using Base64 URL safe encoding. Maximum size 1000 characters.",
+					"type": "string"
+				}
+			}
+		},
+		
+		"CreateCaretakerRequest": {
+			"type": "object",
+			"title": "Create caretaker request body.",
+			"properties": {
+				"addresses": {
+					"type": "array",
+					"description": "List of available addresses for the caretaker.",
+					"items": {
+						"$ref": "#/definitions/AddressRequestItem"
+					}
+				},
+				"secretData": {
+					"description": "Custom data for the secret owner about the caretaker. The private key of the secret is both the signing key and the encrypting key. Encoded using Base64 URL safe encoding. Maximum size 1000 characters.",
+					"type": "string"
+				},
+				"publicKey": {
+					"description": "Optional public key of caretaker. Should only be used for notifications since a caretaker can not generate their own private key if this is set.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"addresses"
+			]
+		},
+		
+		"AddressRequestItem": {
+			"type": "object",
+			"title": "Address item in request.",
+			"properties": {
+				"address": {
+					"description": "Address field of the address. If the public key of the caretaker exists it is encrypted using the Diffie-Hellman key exchange between the two keys of the secret and the caretaker and the signing key will be the private key of the caretaker. If the public key of the caretaker does not exist the the private key of the secret is used both for encryption and signing. Encoded using Base64 URL safe encoding. Alternatively if address privacy is not required this field can be in clear text in which case the nonce field would be empty (Should only be used for unlock notifications). Maximum size of this field is 1kb.",
+					"type": "string"
+				},
+				"addressDigest": {
+					"description": "SHA512 digest of the unencrypted address. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"addressType": {
+					"description": "Type of the address.\n* GCM - Google or Firebase Cloud Messaging.\n* APNS - Apple Push Notification Service.\n* EMAIL - Email address.\n* MAIL - Regular old snail mail address.",
+					"type": "string",
+					"enum": [
+						"GCM",
+						"APNS",
+						"EMAIL",
+						"MAIL"
+					]
+				}
+			},
+			"required": [
+				"addressType",
+				"addressdigest",
+				"address"
+			]
+		},
+		
+		"SendRequest": {
+			"type": "object",
+			"title": "Send message request body payload.",
+			"properties": {
+				"sendType": {
+					"description": "What kind of message to send.\n* INVITE - Initial invite email.\n* UNLOCK - Unlock request email.\n* SHARE - Share notification email.",
+					"type": "string",
+					"enum": [
+						"INVITE",
+						"UNLOCK",
+						"SHARE"
+					]
+				},
+				"address": {
+					"description": "The unencrypted address to send to send to. This must match one of the addresses of the recipient (Checked through the SHA512 hash of the address).",
+					"type": "string"
+				},
+				"title": {
+					"description": "Custom title to include.",
+					"type": "string"
+				},
+				"message": {
+					"description": "Custom message to include. This message does not allow any formatting.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"sendType",
+				"title",
+				"address",
+				"message"
+			]
+		},
+
+		"CreateSecretRequest": {
+			"type": "object",
+			"title": "Create new secret request payload.",
+			"properties": {
+				"publicKey": {
+					"description": "Public key for secret. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"paymentType": {
+					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcount transaction. * ETH - Etherium transaction. * CPN - Coupon code.",
+					"type": "string",
+					"enum": [
+						"USD",
+						"BTC",
+						"ETH",
+						"CPN"
+					]
+				},
+				"paymentToken": {
+					"description": "Token for proving payment. If USD should be a JSON object containing the key email with the \"email\", associated with the payment and \"nonce\" with the payment authorization nonce from Square. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
+					"type": "string"
+				},
+				"data": {
+					"description": "Encrypted data blob. Encoded using Base64 URL safe encoding. The decoded data payload must be less than or equal to 1MB in size. The secret key can be either the private key for the secret or the data key of the secret key. The signing key is always the private key of the secret.",
+					"type": "string"
+				},
+				"publishData": {
+					"description": "Data to be used to save preferences during creation of secret. The encryption key is the private key for the secret which is also the signing key. Encoded using Base64 URL safe encoding and limited to 1000 bytes encoded.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"data",
+		        "publicKey",
+		        "paymentType",
+		        "paymentToken"
+			]
+		},
+
+		"CreateSecretResponse": {
+			"type": "object",
+			"title": "Create secret response body.",
+			"properties": {
+				"secretId": {
+					"description": "The secret identifier of the secret created.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"secretId"
+			]
+		},
+
+		"SecretResponse": {
+			"type": "object",
+			"title": "Get secret response body.",
+			"properties": {
+				"publicKey": {
+					"description": "Public key for secret. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"unlockPublicKey": {
+					"description": "Public key of recipient currently performing an unlock of the secret. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"data": {
+					"description": "Encrypted data blob. Encoded using Base64 URL safe encoding. The secret key can be either the private key for the secret or the data key of the secret key. The signing key is always the private key of the secret.",
+					"type": "string"
+				},
+				"publishData": {
+					"description": "Data to be used to save preferences during creation of secret. The encryption key is the private key for the secret which is also the signing key. Encoded using Base64 URL safe encoding. This field is only returned to the owner of the secret.",
+					"type": "string"
+				},
+				"payDate": {
+					"description": "The time up until which this secret is guaranteed with a refund. Returned as milliseconds since January 1st, 1970 UTC.",
+					"type": "number"
+				}
+			},
+			"required": [
+				"publicKey",
+				"payDate"
+			]
+		},
+		
+		"UpdateSecretRequest": {
+			"type": "object",
+			"title": "Update secret request body.",
+			"properties": {
+				"dataKeyDigest": {
+					"description": "Double SHA512 digest of the key needed for decrypting the data payload. Encoded using Base64 URL safe encoding.",
+					"type": "string"
+				},
+				"paymentType": {
+					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcount transaction. * ETH - Etherium transaction. * CPN - Coupon code. Should only be specified if you wish to make an additional payment for this secret.",
+					"type": "string",
+					"enum": [
+						"USD",
+						"BTC",
+						"ETH",
+						"CPN"
+					]
+				},
+				"paymentToken": {
+					"description": "Token for proving payment. If USD should be a JSON object containing the key email with the \"email\", associated with the payment and \"nonce\" with the payment authorization nonce from Square. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
+					"type": "string"
+				},
+				"data": {
+					"description": "Encrypted data blob. Encoded using Base64 URL safe encoding. The decoded data payload must be less than or equal to 1MB in size. The secret key can be either the private key for the secret or the data key of the secret key. The signing key is always the private key of the secret.",
+					"type": "string"
+				},
+				"publishData": {
+					"description": "Data to be used to save preferences during creation of secret. The encryption key is the private key for the secret which is also the signing key. Encoded using Base64 URL safe encoding and limited to 1000 bytes encoded.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"data"
+			]
+		},
+		
+		"UnlockSecretRequest": {
+			"type": "object",
+			"title": "Unlock secret request body.",
+			"properties": {
+				"addressKeyDigests": {
+					"type": "object",
+					"description": "A map with the key being the caretaker ID of every caretaker of the secret that has a part of the key. The value is a SHA256 digest of the address needed for decrypting the data payload. The value is encoded using Base64 URL safe encoding.",
+					"additionalProperties": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"addressKeyDigests"
+			]
+		},
+		
+		"ShareSecretRequest": {
+			"type": "object",
+			"title": "Unlock secret request body.",
+			"properties": {
+				"sharedDataKeys": {
+					"type": "object",
+					"description": "A map with the key being the caretaker ID of every caretaker of the secret that that should be shared to. The value is the data key of the secret encrypted using the public key of the corresponding caretaker. The maximum size of the value is 250 bytes after encryption and encoding.",
+					"additionalProperties": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"sharedDataKeys"
+			]
+		},
+
+		"PaymentsResponse": {
+			"type": "object",
+			"title": "Payment options information response body.",
+			"properties": {
+				"options": {
+					"type": "object",
+					"description": "A map with the key being the payment type and the value defines that payment type.",
+					"additionalProperties": {
+						"$ref": "#/definitions/PaymentType"
+					}
+				}
+			},
+			"required": [
+				"clientToken"
+			]
+		},
+		
+		"PaymentType": {
+			"type": "object",
+			"title": "Payment type definition.",
+			"properties": {
+				"amount": {
+					"description": "Amount required to crete a secret with this payment type.",
+					"type": "number"
+				},
+				"token": {
+					"description": "Address for crypto currencies or a JSON object containing the application ID and location ID to use for retrieving a Square nonce.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"amount",
+				"token"
+			]
+		}
+	},
+	"x-amazon-apigateway-gateway-responses": {
+		"MISSING_AUTHENTICATION_TOKEN": {
+			"statusCode": 404,
+			"responseTemplates": {
+				"application/json": "{\"message\":\"Resource not found\"}"
+			}
+		}
+	},
+	"x-amazon-apigateway-request-validators": {
+		"validator": {
+			"validateRequestParameters": true,
+			"validateRequestBody": true
+		}
+	}
+}

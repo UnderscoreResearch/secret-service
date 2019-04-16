@@ -1,0 +1,209 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"title": {
+			"Fn::Sub": "Your Shared Secret Send API (${Stage})"
+		},
+		"description": "Limited API only for sending messages for Your Shared Secret service.",
+		"version": "1.0"
+	},
+	"host": "api-send-2.yoursharedsecret.com",
+	"basePath": "/v1",
+	"schemes": [
+		"https"
+	],
+	"paths": {
+		"/": {
+			"get": {
+				"operationId": "GetServiceDefinition",
+				"summary": "Get the swagger documentation of this API.",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "200 response"
+					}
+				},
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/servicetime": {
+			"get": {
+				"operationId": "GetServiceTime",
+				"summary": "Get the current clock of the service to allow for synchronizing of API calls.",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/ServiceTimeResponse"
+						}
+					}
+				},
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		},
+
+		"/caretakers/{secret-id}/{caretaker-id}/send": {
+			"post": {
+				"operationId": "SendMessage",
+				"summary": "Send a message to a caretaker.",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"description": "Unique secret identifier.",
+						"name": "secret-id",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "caretaker-id",
+						"description": "Unique caretaker identifier.",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "x-yoursharedsecret-ownership",
+						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
+						"in": "header",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"in": "body",
+						"name": "SendRequest",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/SendRequest"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"400": {
+						"description": "400 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					},
+					"404": {
+						"description": "404 response",
+						"schema": {
+							"$ref": "#/definitions/MessageResponse"
+						}
+					}
+				},
+		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-integration": {
+					"uri": {
+						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
+					},
+					"passthroughBehavior": "when_no_match",
+					"httpMethod": "POST",
+					"type": "aws_proxy"
+				}
+			}
+		}
+	},
+	"definitions": {
+		"MessageResponse": {
+			"type": "object",
+			"title": "Free form message response.",
+			"properties": {
+				"message": {
+					"description": "Free form message.",
+					"type": "string"
+				}
+			}
+		},
+
+		"ServiceTimeResponse": {
+			"type": "object",
+			"title": "Service time response body.",
+			"properties": {
+				"serviceTime": {
+					"description": "Number of milliseconds since January 1st 1970 UTC.",
+					"type": "number"
+				}
+			}
+		},
+		
+		"SendRequest": {
+			"type": "object",
+			"title": "Send message request body payload.",
+			"properties": {
+				"sendType": {
+					"description": "What kind of message to send.\n* INVITE - Initial invite email.\n* UNLOCK - Unlock request email.\n* SHARE - Share notification email.",
+					"type": "string",
+					"enum": [
+						"INVITE",
+						"UNLOCK",
+						"SHARE"
+					]
+				},
+				"address": {
+					"description": "The unencrypted address to send to send to. This must match one of the addresses of the recipient (Checked through the SHA512 hash of the address).",
+					"type": "string"
+				},
+				"title": {
+					"description": "Custom title to include.",
+					"type": "string"
+				},
+				"message": {
+					"description": "Custom message to include. This message does not allow any formatting.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"sendType",
+				"title",
+				"address",
+				"message"
+			]
+		}
+	},
+	"x-amazon-apigateway-gateway-responses": {
+		"MISSING_AUTHENTICATION_TOKEN": {
+			"statusCode": 404,
+			"responseTemplates": {
+				"application/json": "{\"message\":\"Resource not found\"}"
+			}
+		}
+	},
+	"x-amazon-apigateway-request-validators": {
+		"validator": {
+			"validateRequestParameters": true,
+			"validateRequestBody": true
+		}
+	}
+}

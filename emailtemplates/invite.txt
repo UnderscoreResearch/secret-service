@@ -1,0 +1,21 @@
+{{#title}}
+{{{title}}}
+====
+{{/title}}
+
+You are invited to be a caretaker of information in Your Shared Secret.
+{{#message}}
+
+----
+{{{message}}}
+----
+{{/message}}
+
+If you chose to participate you will be given a portion of a key that which can
+be used to retrieve the information when necessary.
+
+To participate go to {{{url}}}.
+
+If you want to know more about what this is please go to the about section at
+Your Shared Secret at {{{baseurl}}}#about. For more information on how it works
+visit the Usage section on the same site at {{{baseurl}}}#how. 

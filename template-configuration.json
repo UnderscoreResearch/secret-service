@@ -1,0 +1,14 @@
+{
+  "Parameters" : {
+    "Bucket": "$BUCKET$",
+    "BaseUrl": "$BASE_URL$",
+    "PinpointApplicationId": "$PINPOINT_APPLICATION_ID$",
+    "SquareAccessToken": "$SQUARE_ACCESS_TOKEN$",
+    "SquareApplicationId": "$SQUARE_APPLICATION_ID$",
+    "SquareLocationId": "$SQUARE_LOCATION_ID$"
+  },
+  "Tags":
+  {
+    "awscodestar:projectArn":"arn:$PARTITION$:codestar:$AWS_REGION$:$ACCOUNT_ID$:project/$PROJECT_ID$"
+  }
+}

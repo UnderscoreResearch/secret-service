@@ -1,0 +1,58 @@
+<div align="center">
+    <table border="0" cellspacing="0" cellpadding="0" style="max-width: 850px; width: 100%; padding: 1rem; background-color: #f8f9fa !important">
+        <tr>
+            <td align="center">
+                <div style="padding: 1rem;">
+                    {{#title}}
+                    <h1>{{title}}</h1>
+                    {{/title}}
+                    <h2>You are invited to be a caretaker of information on <a {{{tags}}}href="{{{baseurl}}}">Your Shared Secret</a></h2>
+                </div>
+            </td>
+        </tr>
+        {{#message}}
+        <tr>
+            <td style="border: 2px dashed #bbb; border-radius: 5px;">
+                <div style="padding: 1rem;">
+                    {{{message}}}
+                </div>
+            </td>
+
+        </tr>
+        {{/message}}
+        <tr>
+            <td>
+                <div style="padding: 1rem;">
+                    <p>
+                        If you chose to participate you will be given a portion of a key that which can be used to retrieve the information when necessary.
+                    </p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="center">
+                <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" {{{tags}}}href="{{{url}}}" style="height:53px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#49a9ce">
+                    <w:anchorlock/>
+                    <center>
+                <![endif]-->
+                <a {{{tags}}}href="{{{url}}}" style="background-color:#49a9ce;border-radius:5px;color:#ffffff;display:inline-block;font-size:13px;font-weight:bold;line-height:53px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;">Click to participate</a>
+                <!--[if mso]>
+                </center>
+                </v:roundrect>
+                <![endif]-->
+                <p style="color: #888"><small>Or follow the link <a style="color: #88f" {{{tags}}}href="{{{url}}}">{{{url}}}</a></small></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="padding: 1rem;">
+                    <p>
+                        If you want to know more about what this is please go to the about section at <a {{{tags}}}href="{{{baseurl}}}#about">Your Shared Secret</a>. For more information on how it works visit the <a {{{tags}}}href="{{{baseurl}}}#how">usage section</a>
+                        on the same site.
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

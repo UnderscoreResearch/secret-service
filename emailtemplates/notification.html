@@ -1,0 +1,47 @@
+<div align="center">
+    <table border="0" cellspacing="0" cellpadding="0" style="max-width: 850px; width: 100%; padding: 1rem; background-color: #f8f9fa !important">
+        <tr>
+            <td align="center">
+                <div style="padding: 1rem;">
+                    <h2>Somebody has requested to unlock information that you have submitted on <a {{{tags}}}href="{{{baseurl}}}">Your Shared Secret</a></h2>
+                    {{#message}}
+                    <p>Below is the start of the key you should have to access this secret.</p>
+                    {{/message}}
+                </div>
+            </td>
+        </tr>
+        {{#message}}
+        <tr>
+            <td style="border: 2px dashed #bbb; border-radius: 5px;">
+                <div style="padding: 1rem;">
+                    s={{{message}}}/
+                </div>
+            </td>
+        </tr>
+        {{/message}}
+        <tr>
+            <td>
+                <div style="padding: 1rem;">
+                    <p>
+                        You will also receive an additional email with more information such as the title of the information
+                        at the time of submission and a message from the unlocking user.</p>
+                    </p>
+                    <p>
+                        You as the owner of the information now have one week to either block the unlock request or to delete the information from
+                        the service all together if you do not wish to have the information disclosed.
+                    </p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div style="padding: 1rem;">
+                    <p>
+                        If you want to know more about what this is please go to the about section at <a {{{tags}}}href="{{{baseurl}}}#about">Your Shared Secret</a>. For more information on how it works visit the <a {{{tags}}}href="{{{baseurl}}}#how">usage section</a>
+                        on the same site.
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  ProjectId:
+    Type: String
+    Description: AWS CodeStar projectID used to associate new resources to team members
+  Stage:
+    Type: String
+    Description: Stage of project
+    Default: Production
+  SquareAccessToken:
+    Type: String
+    Description: Square authentication token
+  SquareApplicationId:
+    Type: String
+    Description: Square application ID
+  SquareLocationId:
+    Type: String
+    Description: Square location ID
+  PinpointApplicationId:
+    Type: String
+    Description: Pinpoint application ID
+  BaseUrl:
+    Type: String
+    Description: Base url of site
+    Default: 'https://yoursharedsecret.com'
+  Bucket:
+    Type: String
+    Description: Bucket of secret data
+
+Globals:
+
+  Api:
+    EndpointConfiguration: REGIONAL
+    Cors:
+      AllowOrigin: "'*'"
+      AllowHeaders: "'x-yoursharedsecret-ownership,content-type'"
+    MethodSettings:
+      - MetricsEnabled: true
+        CachingEnabled: false
+        ResourcePath: "/*"
+        HttpMethod: "*"
+
+Resources:
+  SecretServiceApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v1
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: ./swagger.json
+  SecretService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.handler
+      FunctionName: !Sub '${ProjectId}-api-${Stage}'
+      Runtime: nodejs8.10
+      Timeout: 29
+      Environment:
+        Variables:
+          BUCKET: !Sub '${Bucket}'
+          BASE_URL: !Sub '${BaseUrl}'
+          SQUARE_ACCESS_TOKEN: !Sub '${SquareAccessToken}'
+          SQUARE_APPLICATION_ID: !Sub '${SquareApplicationId}'
+          SQUARE_LOCATION_ID: !Sub '${SquareLocationId}'
+          PINPOINT_APPLICATION_ID: !Sub '${PinpointApplicationId}'
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
+      Events:
+        AnyCall:
+          Type: Api
+          Properties:
+            Path: '/*'
+            Method: '*'
+            RestApiId:
+              Ref: SecretServiceApi
+  LambdaExecutionRole:
+    Description: Creating service role in IAM for AWS Lambda
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectId}-api-execution-${AWS::Region}-${Stage}'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        -  arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - 
+          PolicyName: "ExecutionPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:DeleteObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - "arn:aws:s3:::yoursharedsecret"
+                  - "arn:aws:s3:::yoursharedsecret-dev"
+                  - "arn:aws:s3:::yoursharedsecret/*"
+                  - "arn:aws:s3:::yoursharedsecret-dev/*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "mobiletargeting:SendMessages"
+                Resource: "*"

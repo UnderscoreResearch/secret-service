@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      # Install dependencies needed for running tests
+      - npm install
+
+      # Upgrade AWS CLI to the latest version
+      - pip install --upgrade awscli
+  pre_build:
+    commands:
+      # Discover and run unit tests in the 'tests' directory
+      - npm test
+  build:
+    commands:
+      # If we are building in non us-west-2 we should strip our swagger down.
+      - if [ "${AWS_REGION}" != "us-west-2" ] ; then cp swagger-send.json swagger.json ; echo "Replacing with stripped down swagger.json" ; fi
+      
+      # Use AWS SAM to package the application using AWS CloudFormation
+      - aws cloudformation package --template template.yml --s3-bucket $S3_BUCKET --output-template template-export.yml
+
+      # Do not remove this statement. This command is required for AWS CodeStar projects.
+      # Update the AWS Partition, AWS Region, account ID and project ID in the project ARN on template-configuration.json file so AWS CloudFormation can tag project resources.
+      - perl generate-template.pl
+artifacts:
+  type: zip
+  files:
+    - template-export.yml
+    - template-configuration.json
