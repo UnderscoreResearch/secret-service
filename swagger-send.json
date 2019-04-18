@@ -89,7 +89,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
+						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK or SHARE request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -123,7 +123,7 @@
 						}
 					}
 				},
-		        "x-amazon-apigateway-request-validator": "validator",
+				"x-amazon-apigateway-request-validator": "validator",
 				"x-amazon-apigateway-integration": {
 					"uri": {
 						"Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SecretService.Arn}/invocations"
@@ -157,7 +157,7 @@
 				}
 			}
 		},
-		
+
 		"SendRequest": {
 			"type": "object",
 			"title": "Send message request body payload.",

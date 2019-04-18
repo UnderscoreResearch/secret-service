@@ -79,7 +79,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretakers public key. See separate section for details.",
+						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretaker's public key. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -135,7 +135,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretakers public key or the similarly for the current caretakers public key. See separate section for details.",
+						"description": "Header proving access to either the private key of the secret or the private key corresponding to the current unlocking caretaker's public key or the similarly for the current caretaker's public key. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -249,7 +249,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"description": "Header proving access to the private key of the secret. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -319,7 +319,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to the private key corresponding to the current current caretakers public key. If the secret has not yet been published the secrets key is also acceptable. See separate section for details.",
+						"description": "Header proving access to the private key corresponding to the current current caretaker's public key or the secret's private key. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -390,7 +390,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret. See separate section for details.",
+						"description": "Header proving access to the private key of the secret. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -455,7 +455,7 @@
 					},
 					{
 						"name": "x-yoursharedsecret-ownership",
-						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
+						"description": "Header proving access to either the private key of the secret in the case of sending an INVITE. If sending an UNLOCK or SHARE request the private key of the current unlocking caretaker must be used to sign the request. See separate section for details.",
 						"in": "header",
 						"required": true,
 						"type": "string"
@@ -551,7 +551,7 @@
 			"get": {
 				"operationId": "GetSecret",
 				"summary": "Get a secret.",
-				"description": "This can be done either by the owner of the secret or the unlocking caretaker assuming that the 1 week quarantine period has passed and the proper dataKeyDigest is provided.",
+				"description": "This can be done either by the owner of the secret or the unlocking caretaker assuming that the 1-week quarantine period has passed and the proper dataKeyDigest is provided.",
 				"produces": [
 					"application/json"
 				],
@@ -564,13 +564,13 @@
 						"type": "string"
 					},
 					{
-						"description": "SHA 256 digest of the key used to encrypt the secret. Only needed when retrieving during an unlock. Encoded using Base64 URL safe encoding.",
+						"description": "SHA 256 digest of the key used to encrypt the secret. Only needed when retrieving during an unlock or accessing a shared secret. Encoded using Base64 URL safe encoding.",
 						"name": "dataKeyDigest",
 						"in": "query",
 						"type": "string"
 					},
 					{
-						"description": "Caretaker requesting to fetch the secret. Must also prove knowledge of the dataKey.",
+						"description": "Caretaker requesting to fetch the secret. Only needed when accessing a shared secret. Must also prove knowledge of the dataKey.",
 						"name": "caretakerId",
 						"in": "query",
 						"type": "string"
@@ -1113,7 +1113,7 @@
 			},
 			"required": [
 				"addressType",
-				"addressdigest",
+				"addressDigest",
 				"address"
 			]
 		},
@@ -1161,7 +1161,7 @@
 					"type": "string"
 				},
 				"paymentType": {
-					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcount transaction. * ETH - Etherium transaction. * CPN - Coupon code.",
+					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcoin transaction. * ETH - Ethereum transaction. * CPN - Coupon code.",
 					"type": "string",
 					"enum": [
 						"USD",
@@ -1245,7 +1245,7 @@
 					"type": "string"
 				},
 				"paymentType": {
-					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcount transaction. * ETH - Etherium transaction. * CPN - Coupon code. Should only be specified if you wish to make an additional payment for this secret.",
+					"description": "What type of payment token is provided. * USD - Normal payment processor. * BTC - Bitcoin transaction. * ETH - Ethereum transaction. * CPN - Coupon code. Should only be specified if you wish to make an additional payment for this secret.",
 					"type": "string",
 					"enum": [
 						"USD",
