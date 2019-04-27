@@ -5,7 +5,10 @@
     "PinpointApplicationId": "$PINPOINT_APPLICATION_ID$",
     "SquareAccessToken": "$SQUARE_ACCESS_TOKEN$",
     "SquareApplicationId": "$SQUARE_APPLICATION_ID$",
-    "SquareLocationId": "$SQUARE_LOCATION_ID$"
+    "SquareLocationId": "$SQUARE_LOCATION_ID$",
+    "AuthorizeNetLoginKey": "$AUTHORIZE_NET_LOGIN_KEY$",
+    "AuthorizeNetTransactionKey": "$AUTHORIZE_NET_TRANSACTION_KEY$",
+    "AuthorizeNetEnv": "$AUTHORIZE_NET_ENV$"
   },
   "Tags":
   {

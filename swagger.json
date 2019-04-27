@@ -1171,7 +1171,7 @@
 					]
 				},
 				"paymentToken": {
-					"description": "Token for proving payment. If USD should be a JSON object containing the key email with the \"email\", associated with the payment and \"nonce\" with the payment authorization nonce from Square. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
+					"description": "Token for proving payment. If USD should be a JSON object containing the keys \"email\", \"number\", \"exp\", \"code\" and \"zip\" fields for the credit card transaction to be processed. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
 					"type": "string"
 				},
 				"data": {
@@ -1255,7 +1255,7 @@
 					]
 				},
 				"paymentToken": {
-					"description": "Token for proving payment. If USD should be a JSON object containing the key email with the \"email\", associated with the payment and \"nonce\" with the payment authorization nonce from Square. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
+					"description": "Token for proving payment. If USD should be a JSON object containing the keys \"email\", \"number\", \"exp\", \"code\" and \"zip\" fields for the credit card transaction to be processed. It can also alternatively contain just an \"email\" and a Square \"nonce\" for processing the payment with Square. If BTC or ETH should be a transaction hash on the corresponding block chains that have a committed transaction to the correct address with at least the minimum amount (See website for up to date details of the addresses and amounts).",
 					"type": "string"
 				},
 				"data": {
@@ -1332,7 +1332,7 @@
 					"type": "number"
 				},
 				"token": {
-					"description": "Address for crypto currencies or a JSON object containing the application ID and location ID to use for retrieving a Square nonce.",
+					"description": "Address for crypto currencies or a JSON object containing the application ID and location ID to use for retrieving a Square nonce. Providing the CC details directly is the preferred credit card processing method since it does not require the front end to download a script from Square to collect the CC details.",
 					"type": "string"
 				}
 			},

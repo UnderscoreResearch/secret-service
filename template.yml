@@ -19,6 +19,15 @@ Parameters:
   SquareLocationId:
     Type: String
     Description: Square location ID
+  AuthorizeNetLoginKey:
+    Type: String
+    Description: Authorize.Net login key
+  AuthorizeNetTransactionKey:
+    Type: String
+    Description: Authorize.Net transaction key
+  AuthorizeNetEnv:
+    Type: String
+    Description: Authorize.Net environment (If PROD then do real charges)
   PinpointApplicationId:
     Type: String
     Description: Pinpoint application ID
@@ -68,6 +77,9 @@ Resources:
           SQUARE_APPLICATION_ID: !Sub '${SquareApplicationId}'
           SQUARE_LOCATION_ID: !Sub '${SquareLocationId}'
           PINPOINT_APPLICATION_ID: !Sub '${PinpointApplicationId}'
+          AUTHORIZE_NET_LOGIN_KEY: !Sub '${AuthorizeNetLoginKey}'
+          AUTHORIZE_NET_TRANSACTION_KEY: !Sub '${AuthorizeNetTransactionKey}'
+          AUTHORIZE_NET_ENV: !Sub '${AuthorizeNetEnv}'
       Role:
         Fn::GetAtt:
           - LambdaExecutionRole
