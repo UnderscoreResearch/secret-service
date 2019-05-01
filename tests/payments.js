@@ -15,9 +15,9 @@ payments.setUrlFetcher(paymentmock);
 
 const TESTTX = "0x8DD7429B500C142AD541185A15D84DCAD8BC4BEF1C745C9323EC0362E2B6BFE1";
 const ETH_ADDRESS = "0x5D8AB714685C6F30614b6814ae9e66285de68a5D";
-const ETH_AMOUNT = 50000000000000000; // 0.01 ETH
+const ETH_AMOUNT = 500000000000000000; // 0.5 ETH
 const BTC_ADDRESS = "3382BMuNvJuzMMViccaS4NwduCmt4YYLLo";
-const BTC_AMOUNT = 100000; // 0.001 BTC
+const BTC_AMOUNT = 1000000; // 0.01 BTC
 
 describe('Payments', function() {
     it('success cpn', function(done) {

@@ -16,7 +16,7 @@ module.exports.charge = function (location, transaction) {
         if (transaction.idempotency_key !== "nonce") {
             reject("Invalid idempotency");
         }
-        if (transaction.amount_money.amount !== 100) {
+        if (transaction.amount_money.amount !== 1000) {
             reject("Invalid amount");
         }
         if (transaction.amount_money.currency !== 'USD') {

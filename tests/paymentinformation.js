@@ -31,9 +31,9 @@ describe('paymentInformation', function() {
                     test.value(result.body).is(
                         {
                             options: {
-                                "USD":{"amount":1,"token":"{\"applicationId\":\"app\",\"locationId\":\"location\"}"},
-                                "ETH":{"amount":0.05,"token":"0x5D8AB714685C6F30614b6814ae9e66285de68a5D"},
-                                "BTC":{"amount":0.001,"token":"3382BMuNvJuzMMViccaS4NwduCmt4YYLLo"}
+                                "USD":{"amount":10,"token":"{\"applicationId\":\"app\",\"locationId\":\"location\"}"},
+                                "ETH":{"amount":0.5,"token":"0x5D8AB714685C6F30614b6814ae9e66285de68a5D"},
+                                "BTC":{"amount":0.01,"token":"3382BMuNvJuzMMViccaS4NwduCmt4YYLLo"}
                             }
                         });
                     done();

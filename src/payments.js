@@ -9,13 +9,13 @@ const common = require("./common.js");
 const sendMessage = require('./sendmessage');
 
 const ETH_ADDRESS = "0x5D8AB714685C6F30614b6814ae9e66285de68a5D";
-const ETH_AMOUNT = 50000000000000000;  // 0.05 BTC
+const ETH_AMOUNT = 500000000000000000;  // 0.5 BTC
 const BTC_ADDRESS = "3382BMuNvJuzMMViccaS4NwduCmt4YYLLo";
-const BTC_AMOUNT = 100000; // 0.001 BTC
+const BTC_AMOUNT = 1000000; // 0.01 BTC
 const BTC_AMOUNT_DISPLAY = BTC_AMOUNT / 100000000;
 const ETH_AMOUNT_DISPLAY = ETH_AMOUNT / 1e18;
-const USD_AMOUNT = 1.0; // 1 USD
-const USD_AMOUNT_DISPLAY = USD_AMOUNT; // 1 USD
+const USD_AMOUNT = 10.0; // 1 USD
+const USD_AMOUNT_DISPLAY = USD_AMOUNT; // 10 USD
 const DOUBLE_SPEND_PERIOD = 1000 * 60; // How long we allow to reuse a token
 
 var squareClient;
